@@ -1,0 +1,25 @@
+
+<mat-sidenav-container style="height: calc(100% - 64px); margin: 0;">
+  <mat-sidenav #sidenav mode="side" opened [class.mat-elevation-z4]="true" style="width: 240px">
+      <mat-nav-list dense>
+          <mat-expansion-panel [class.mat-elevation-z0]="true" dense *ngFor="let book of recipeBooks">
+              <mat-expansion-panel-header>
+                  {{book.title}}
+              </mat-expansion-panel-header>
+              <mat-nav-list dense>
+                <a mat-list-item (click)="navigateToListOfRecipes(book)"><mat-icon>attach_money</mat-icon>Alle Rezepte</a>
+            </mat-nav-list>
+              <mat-nav-list dense *ngFor="let recipe of book.recipeList">
+                  <a mat-list-item (click)="navigateToSpecificRecipe(book, recipe)"><mat-icon>attach_money</mat-icon>{{recipe.title}}</a>
+              </mat-nav-list>
+          </mat-expansion-panel>
+      </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+      <router-outlet>
+          <div class="container mat-body-1">
+              Account Component
+          </div>
+      </router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>
