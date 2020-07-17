@@ -14,12 +14,20 @@
               </mat-nav-list>
           </mat-expansion-panel>
       </mat-nav-list>
+
+      <div class="row justify-content-center" *ngIf="isLoggedIn">
+        <mat-form-field class="example-form-field">
+          <mat-label>Neues Rezeptbuch</mat-label>
+          <input matInput type="text" [(ngModel)]="tempInput">
+          <button mat-button *ngIf="tempInput" matSuffix mat-icon-button aria-label="Clear" (click)="addRecipeBook()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+
   </mat-sidenav>
   <mat-sidenav-content>
       <router-outlet>
-          <div class="container mat-body-1">
-              Account Component
-          </div>
       </router-outlet>
   </mat-sidenav-content>
 </mat-sidenav-container>

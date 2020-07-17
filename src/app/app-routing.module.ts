@@ -4,6 +4,8 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { RecipeListComponent } from './components/recipe-list/recipe-list.component';
 import { RecipeCustomerDetailComponent } from './components/recipe-customer-detail/recipe-customer-detail.component';
 import { RecipeAdminDetailComponent } from './components/recipe-admin-detail/recipe-admin-detail.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { AuthGuardService } from './core/auth-guard.service';
 
 
 const routes: Routes = [
@@ -18,8 +20,19 @@ const routes: Routes = [
     children: [
       {
         path: ':book',
-        component: RecipeListComponent,
         children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            component: RecipeListComponent
+          },
+          {
+            path: 'recipe/create/new',
+            pathMatch: 'full',
+            component: RecipeAdminDetailComponent,
+            canActivate : [AuthGuardService],
+            data: { roles: ['admin'] }
+          },
           {
             path: 'recipe/:recipe',
             pathMatch: 'full',
@@ -28,9 +41,16 @@ const routes: Routes = [
           {
             path: 'recipe/:recipe/edit',
             pathMatch: 'full',
-            component: RecipeAdminDetailComponent
+            component: RecipeAdminDetailComponent,
+            canActivate : [AuthGuardService],
+            data: { roles: ['admin'] }
           }
         ]
+      },
+      {
+        path: '',
+        pathMatch: 'full',
+        component: SidebarComponent
       }
     ]
   }
@@ -38,6 +58,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
+  providers: [AuthGuardService]
 })
 export class AppRoutingModule { }

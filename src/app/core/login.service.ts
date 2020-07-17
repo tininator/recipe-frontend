@@ -22,4 +22,12 @@ export class LoginService {
   public getUserInfos(): Promise<Keycloak.KeycloakProfile> {
     return this.keycloakAngular.loadUserProfile();
   }
+
+  public logIn(): void {
+    this.keycloakAngular.login();
+  }
+
+  public isLoggedIn(): Promise<boolean> {
+    return this.keycloakAngular.isLoggedIn();
+  }
 }

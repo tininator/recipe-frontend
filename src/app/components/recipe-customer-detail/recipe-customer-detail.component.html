@@ -1,1 +1,46 @@
-<p>recipe-customer-detail works!</p>
+<div class="container-fluid" *ngIf="recipe">
+  <div class="row justify-content-center mt-5">
+    <h1>{{recipe.title}}</h1>
+  </div>
+
+  <div class="row justify-content-around mt-4">
+    <div class="col-md-8 col-lg-4 mt-auto mb-auto">
+      <img width="100%" height="auto" src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu">
+    </div>
+
+    <div class="col-md-10 col-lg-4 mt-3">
+      <div class="row justify-content-center">
+        <h3>Zutaten</h3>
+      </div>
+      <div class="row justify-content-center">
+        <p style="text-align: center;">Die Folgende Liste beinhaltet alle Zutaten für das Rezept <strong>{{recipe.title}}</strong>.</p>
+      </div>
+
+      <ul class="row justify-content-center" dense *ngFor="let i of recipe.ingredientList">
+        <li>{{i.amount}} {{i.style}} {{i.food.name}}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="row justify-content-center mt-3">
+    <h3>Ablauf</h3>
+  </div>
+  <div class="row justify-content-center">
+    <p style="text-align: center;" class = "col-8">{{recipe.description}}</p>
+  </div>
+
+  <div class="row justify-content-center mt-3">
+    <h3>Notizen</h3>
+  </div>
+  <div class="row justify-content-center">
+    <p style="text-align: center;" class = "col-8">{{recipe.notes}}</p>
+  </div>
+  <div class="column" *ngIf="isLoggedIn">
+    <div class="fixed-right">
+      <button mat-fab color="primary" (click)="addEditView()"><mat-icon>edit</mat-icon></button>
+    </div>
+  </div>
+
+</div>
+

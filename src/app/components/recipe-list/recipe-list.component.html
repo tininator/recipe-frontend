@@ -1,18 +1,45 @@
-<div class="container-fluid" *ngIf="recipeBook">
+<div class="container-fluid" >
   <mat-card>
-    <div class="row justify-content-center">
+    <div *ngIf="editView" class="row justify-content-center">
+      <mat-form-field appearance="outline" class="col-5 mr-2" *ngIf="isLoggedIn && recipeBook">
+        <mat-label>Titel</mat-label>
+        <input matInput [(ngModel)]="recipeBook.title">
+      </mat-form-field>
+      <button mat-flat-button (click)="editTitle()">Speichern</button>
+    </div>
+    <div class="row justify-content-center" *ngIf="recipeBook && !editView">
       <h1>{{recipeBook.title}}</h1>
     </div>
-    <ul class="mdc-image-list my-image-list">
-      <li class="mdc-image-list__item">
-        <div class="mdc-image-list__image-aspect-container">
-          <img class="mdc-image-list__image" src="https://material-components-web.appspot.com/images/photos/3x2/16.jpg">
-        </div>
-        <div class="mdc-image-list__supporting">
-          <span class="mdc-image-list__label">Text label</span>
-        </div>
-      </li>
-      ...
-    </ul>
+    <div *ngIf="recipeBook && recipeBook.recipeList.length === 0" class="row justify-content-center">
+      <h2 style="text-align: center;">Der Administrator hat noch keine Rezepte zu dem Rezeptbuch hinzugefügt.</h2>
+    </div>
+    <div class="row justify-content-center" *ngIf="recipeBook && recipeBook.recipeList.length !== 0">
+      <p class="col-8" style="text-align: center;">Eine Auflistung aller Rezepte zu dem Rezeptbuch.</p>
+    </div>
+    <mat-list *ngIf="recipeBook">
+      <mat-list-item *ngFor="let recipe of recipeBook.recipeList" (click)="navigateToSpecificRecipe(recipe)">
+        <img matListAvatar src="https://material.angular.io/assets/img/examples/shiba1.jpg" alt="Photo of a Shiba Inu">
+        <h3 matLine> {{recipe.title}} </h3>
+        <p matLine>
+          <span> {{recipe.description}} </span>
+        </p>
+      </mat-list-item>
+    </mat-list>
+
+    <div class="row justify-content-center mt-3" *ngIf="isLoggedIn">
+      <button mat-fab color="primary" aria-label="Example icon button with a delete icon" (click)="navigateToAddView()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
+
   </mat-card>
+
+  <div class="column" *ngIf="isLoggedIn">
+    <div class="fixed-right">
+      <button mat-fab color="warn" class="mr-2" (click)="deleteRecipeBook()"><mat-icon>delete</mat-icon></button>
+      <button mat-fab color="primary" (click)="toggleEditView()" *ngIf="!editView"><mat-icon>edit</mat-icon></button>
+    </div>
+  </div>
 </div>
+<router-outlet></router-outlet>

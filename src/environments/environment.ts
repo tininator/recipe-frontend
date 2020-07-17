@@ -5,9 +5,9 @@
 import { KeycloakConfig } from 'keycloak-angular';
 
 const keycloakConfig: KeycloakConfig = {
-  url: 'https://localhost:9000/auth',
+  url: 'http://localhost:9000/auth',
   realm: 'Recipe',
-  clientId: 'recipe_frontend'
+  clientId: 'recipe-frontend'
 };
 
 export const environment = {

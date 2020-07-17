@@ -22,6 +22,17 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {MatButtonModule} from '@angular/material/button';
 import {MatListModule} from '@angular/material/list';
 import {MatCardModule} from '@angular/material/card';
+import {MatSelectModule} from '@angular/material/select';
+import {MatInputModule} from '@angular/material/input';
+
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatDialogModule} from '@angular/material/dialog';
+import { SnackbarComponent } from './core/snackbar/snackbar.component';
+import { DialogComponent } from './core/dialog/dialog.component';
+import { SnackbarService } from './services/snackbar.service';
+import { UploadFilesComponent } from './components/upload-files/upload-files.component';
+
 
 
 @NgModule({
@@ -32,7 +43,10 @@ import {MatCardModule} from '@angular/material/card';
     SidebarComponent,
     RecipeListComponent,
     RecipeCustomerDetailComponent,
-    RecipeAdminDetailComponent
+    RecipeAdminDetailComponent,
+    SnackbarComponent,
+    DialogComponent,
+    UploadFilesComponent
   ],
   imports: [
     BrowserModule,
@@ -46,7 +60,17 @@ import {MatCardModule} from '@angular/material/card';
     MatSidenavModule,
     MatIconModule,
     MatListModule,
-    MatCardModule
+    MatCardModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatSelectModule,
+    MatInputModule,
+    MatSnackBarModule,
+    MatDialogModule
+  ],
+  entryComponents: [
+    SnackbarComponent,
+    DialogComponent
   ],
   providers: [{
     provide: APP_INITIALIZER,

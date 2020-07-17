@@ -34,7 +34,19 @@ export class RecipebookApiService {
     return this.http.post<RecipeBook>(this._basePath + this._routeUrl, recipebook, httpOptions);
   }
 
-  public updateRecipeBookEntrydeleteState(recipebook: RecipeBook): Observable<RecipeBook> {
-    return this.http.put<RecipeBook>(this._basePath + this._routeUrl + recipebook.id, recipebook.id, httpOptions);
+  public updateRecipeBookTitle(updatedTitle: string, updatedid: string): Observable<RecipeBook> {
+    return this.http.put<RecipeBook>(this._basePath + this._routeUrl + '/title/' + updatedid, updatedTitle, httpOptions);
+  }
+
+  public getRecipeBookByTitle(title: string) {
+    return this.http.get<RecipeBook>(this._basePath + this._routeUrl + '/title/' + title, httpOptions);
+  }
+
+  public getRecipeBookById(id: string) {
+    return this.http.get<RecipeBook>(this._basePath + this._routeUrl + '/title/' + id, httpOptions);
+  }
+
+  public deleteRecipeBookById(id: string) {
+    return this.http.delete<void>(this._basePath + this._routeUrl + '/' + id, httpOptions);
   }
 }

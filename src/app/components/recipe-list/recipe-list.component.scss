@@ -1,5 +1,11 @@
-@use "@material/image-list";
+.fixed-right {
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+}
 
-.my-image-list {
-  @include image-list.standard-columns(5);
+.fixed-right-top {
+  position: fixed;
+  right: 10px;
+  bottom: 50px;
 }
