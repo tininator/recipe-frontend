@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { StateService, stateActions } from 'src/app/services/state.service';
 import { State } from 'src/app/models/state.interface';
@@ -8,19 +8,24 @@ import { RecipebookService } from 'src/app/services/recipebook.service';
 import { RecipebookApiService } from 'src/app/api/recipebook.api.service';
 import { LoginService } from 'src/app/core/login.service';
 import { DialogService } from 'src/app/services/dialog.service';
+import { Subscription } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-recipe-list',
   templateUrl: './recipe-list.component.html',
   styleUrls: ['./recipe-list.component.scss']
 })
-export class RecipeListComponent implements OnInit {
+export class RecipeListComponent implements OnInit, OnDestroy {
 
   recipebookParam: string;
   recipeBook: RecipeBook;
 
   editView: boolean = false;
   public isLoggedIn: boolean;
+
+  private stateSub: Subscription;
+  private bookSub: Subscription;
 
   constructor(private readonly router: Router,
               private readonly activeRoute: ActivatedRoute,
@@ -38,13 +43,36 @@ export class RecipeListComponent implements OnInit {
     this.loginService.isLoggedIn().then((value: boolean) => {
       this.isLoggedIn = value;
     }).catch(error => console.log(error));
-    this.stateService.getState().subscribe((state: State) => {
+    this.stateSub = this.stateService.getState().subscribe((state: State) => {
+      console.log('LIST', state);
       if (state && state.selectedRecipeBook) {
         this.recipeBook = state.selectedRecipeBook;
       } else {
         this.recipeBookApi.getRecipeBookByTitle(this.recipebookParam).subscribe((rb: RecipeBook) => {
           this.stateService.dispatch(stateActions.setselectedrecipebook, rb);
         }, error => this.router.navigate(['/recipebooks']));
+      }
+    });
+
+    /* this.stateService.getState().pipe(
+      switchMap((state: State) => {
+        if (state && state.selectedRecipeBook) {
+          this.recipeBook = state.selectedRecipeBook;
+        } else {
+          this.recipeBookApi.getRecipeBookByTitle(this.recipebookParam).subscribe((rb: RecipeBook) => {
+            this.stateService.dispatch(stateActions.setselectedrecipebook, rb);
+          }, error => this.router.navigate(['/recipebooks']));
+        }
+        return this.recipeBookService.recipeBooks$;
+      })
+    ).subscribe((rb: RecipeBook[]) => {
+
+    }) */
+
+    this.bookSub = this.recipeBookService.recipeBooks$.subscribe((rb: RecipeBook[]) => {
+      if (this.recipeBook) {
+        const rbe: RecipeBook = rb.find((r: RecipeBook) => r.id === this.recipeBook.id);
+        this.stateService.dispatch(stateActions.setselectedrecipebook, rbe);
       }
     });
   }
@@ -77,6 +105,11 @@ export class RecipeListComponent implements OnInit {
         this.router.navigate(['/recipebooks']);
       }
     });
+  }
+
+  public ngOnDestroy(): void {
+    this.bookSub.unsubscribe();
+    this.stateSub.unsubscribe();
   }
 
 }

@@ -67,7 +67,7 @@ export class RecipebookService {
       }
       this._recipeBooks$$.next(recipebooks.slice());
       this.snackbarService.openSnackBar('Rezept erstellt');
-    }, error => this.snackbarService.openSnackBar(error.error));
+    }, error => console.log(error));
   }
 
   public editRecipe(updatedRecipe: Recipe, recipebookid: string, id: string): void {

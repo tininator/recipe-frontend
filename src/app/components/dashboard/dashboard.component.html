@@ -7,11 +7,14 @@
                   {{book.title}}
               </mat-expansion-panel-header>
               <mat-nav-list dense>
-                <a mat-list-item (click)="navigateToListOfRecipes(book)"><mat-icon>attach_money</mat-icon>Alle Rezepte</a>
+                <a mat-list-item (click)="navigateToListOfRecipes(book)"><mat-icon class="mr-2">restaurant</mat-icon><strong>Alle Rezepte</strong></a>
             </mat-nav-list>
               <mat-nav-list dense *ngFor="let recipe of book.recipeList">
-                  <a mat-list-item (click)="navigateToSpecificRecipe(book, recipe)"><mat-icon>attach_money</mat-icon>{{recipe.title}}</a>
+                  <a mat-list-item (click)="navigateToSpecificRecipe(book, recipe)">{{recipe.title}}</a>
               </mat-nav-list>
+              <div class="row justify-content-center">
+                <button mat-icon-button *ngIf="isLoggedIn" (click)="openAddView(book)"><mat-icon>add</mat-icon></button>
+              </div>
           </mat-expansion-panel>
       </mat-nav-list>
 

@@ -32,19 +32,28 @@ export class DashboardComponent implements OnInit {
   }
 
   public navigateToListOfRecipes(recipeBook: RecipeBook): void {
-    this.stateService.dispatch(stateActions.setselectedrecipebook, recipeBook);
     this.router.navigate(['/recipebooks', recipeBook.title]);
+    this.stateService.dispatch(stateActions.setselectedrecipebook, recipeBook);
+
   }
 
   public navigateToSpecificRecipe(recipeBook: RecipeBook, recipe: Recipe): void {
+    this.router.navigate(['/recipebooks', recipeBook.title, 'recipe', recipe.title]);
     this.stateService.dispatch(stateActions.setselectedrecipebook, recipeBook);
     this.stateService.dispatch(stateActions.setselectedrecipe, recipe);
-    this.router.navigate(['/recipebooks', recipeBook.title, 'recipe', recipe.title]);
+
   }
 
   public addRecipeBook(): void {
     this.recipebookService.addRecipeBook({title: this.tempInput});
     this.tempInput = undefined;
+  }
+
+  public openAddView(recipeBook: RecipeBook): void {
+    this.router.navigate(['/recipebooks', recipeBook.title, 'recipe', 'create', 'new']);
+    this.stateService.dispatch(stateActions.setselectedrecipebook, recipeBook);
+    this.stateService.dispatch(stateActions.unsetselectedrecipe);
+
   }
 
 }

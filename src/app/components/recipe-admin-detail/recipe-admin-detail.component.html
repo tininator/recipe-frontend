@@ -6,16 +6,18 @@
     <div class="row justify-content-center">
       <mat-form-field appearance="outline" class="col-5">
         <mat-label>Titel</mat-label>
-        <input matInput formControlName="title">
+        <input matInput formControlName="title" required>
       </mat-form-field>
     </div>
 
     <div class="row justify-content-around mt-3">
-      <div class="col-md-8 col-lg-3 mt-auto mb-auto">
-        <img src="http://localhost:8080/api/image/logo" class="rounded" alt="Grokonez-About Image" width="100%" height="auto">
-        <app-upload-files></app-upload-files>
+      <div class="col-5 mt-auto mb-auto">
+        <img *ngIf="(!recipe || !recipe.pictureUrl) && !tempImageUrlForAdding" src="./../../../assets/no_image.png" class="rounded" alt="Kein Bild" width="100%" height="auto">
+        <img *ngIf="recipe && recipe.pictureUrl" src={{recipe.pictureUrl}} class="rounded" alt="Grokonez-About Image" width="100%" height="auto">
+        <img *ngIf="tempImageUrlForAdding" src={{tempImageUrlForAdding}} class="rounded" alt="Grokonez-About Image" width="100%" height="auto">
+        <app-upload-files (url)="setPictureUrl($event)"></app-upload-files>
       </div>
-      <div class="col-md-8 col-lg-8 mt-3">
+      <div class="col-8 mt-3">
         <div class="row justify-content-center">
           <h3>Zutaten</h3>
         </div>
@@ -39,7 +41,7 @@
               <div formGroupName="food" class="mr-2">
                 <mat-form-field appearance="outline">
                   <mat-label>Name</mat-label>
-                  <input matInput placeholder="Placeholder" formControlName="name">
+                  <input matInput placeholder="Placeholder" formControlName="name" required>
                 </mat-form-field>
               </div>
 
@@ -76,8 +78,8 @@
 
   <div class="column">
     <div class="fixed-right">
-      <button mat-fab color="primary" class="mr-2" (click)="addRecipe()" *ngIf="!recipe"><mat-icon>add</mat-icon></button>
-      <button mat-fab color="primary" class="mr-2" (click)="editRecipe()" *ngIf="recipe"><mat-icon>edit</mat-icon></button>
+      <button mat-fab color="primary" class="mr-2" (click)="addRecipe()" *ngIf="!recipe" [disabled]="!recipeForm.valid"><mat-icon>add</mat-icon></button>
+      <button mat-fab color="primary" class="mr-2" (click)="editRecipe()" *ngIf="recipe" [disabled]="!recipeForm.valid"><mat-icon>edit</mat-icon></button>
       <button mat-fab color="warn" class="mr-2" (click)="deleteRecipe()" *ngIf="recipe"><mat-icon>delete</mat-icon></button>
       <button mat-fab (click)="return()">Abbruch</button>
     </div>

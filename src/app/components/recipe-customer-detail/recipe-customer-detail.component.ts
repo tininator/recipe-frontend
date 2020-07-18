@@ -46,12 +46,14 @@ export class RecipeCustomerDetailComponent implements OnInit, OnDestroy {
       this.isLoggedIn = value;
     }).catch(error => console.log(error));
     this.stateSubscription = this.stateService.getState().subscribe((state: State) => {
+      console.log('DETAIL', state)
       if (state && !state.selectedRecipeBook) {
         this.recipeBookApi.getRecipeBookByTitle(this.recipeBookParam).subscribe((rb: RecipeBook) => {
           this.stateService.dispatch(stateActions.setselectedrecipebook, rb);
         }, error => this.router.navigate(['/recipebooks']));
       } else if (state && !state.selectedRecipe) {
         this.recipeApi.getRecipeByTitle(this.recipeParam).subscribe((rb: Recipe) => {
+          console.log('POSSIBLE');
           this.stateService.dispatch(stateActions.setselectedrecipe, rb);
         }, error => {
           this.router.navigate(['/recipebooks', state.selectedRecipeBook.title]);
@@ -68,6 +70,7 @@ export class RecipeCustomerDetailComponent implements OnInit, OnDestroy {
 
   public ngOnDestroy(): void {
     this.stateSubscription.unsubscribe();
+    // this.stateService.dispatch(stateActions.unsetselectedrecipe);
     // this.stateService.dispatch(stateActions.unsetselectedrecipe);
   }
 

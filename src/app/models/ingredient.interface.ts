@@ -12,5 +12,7 @@ export enum IngredientStyle {
   ml = 'ml',
   Prise = 'Prise',
   kg = 'kg',
-  unze = 'unze'
+  unze = 'unze',
+  TL = 'TL',
+  EL = 'EL'
 }

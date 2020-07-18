@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, FormArray } from '@angular/forms';
+import { FormGroup, FormBuilder, FormControl, FormArray, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { StateService, stateActions } from 'src/app/services/state.service';
 import { State } from 'src/app/models/state.interface';
@@ -27,8 +27,9 @@ export class RecipeAdminDetailComponent implements OnInit, OnDestroy {
   public recipeBookParam: string;
   public recipe: Recipe;
 
-  public recipebookId: string;
   public selectedRecipeBook: RecipeBook;
+
+  public tempImageUrlForAdding: string;
 
   public keys = Object.keys;
   enumtypes = IngredientStyle;
@@ -51,15 +52,14 @@ export class RecipeAdminDetailComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.buildRecipeForm();
     this.stateSubscription = this.stateService.getState().subscribe((state: State) => {
-      console.log(state);
-      this.selectedRecipeBook = state.selectedRecipeBook;
+      console.log('ADMIN', state);
       if (state.selectedRecipeBook) {
-        this.recipebookId = state.selectedRecipeBook.id;
+        this.selectedRecipeBook = state.selectedRecipeBook;
+      } else {
+        this.router.navigate(['/recipebooks']);
       }
 
-      if (state && !state.selectedRecipeBook) {
-        this.router.navigate(['/recipebooks']);
-      } else if (state && state.selectedRecipe) {
+      if (state && state.selectedRecipe) {
         this.recipe = state.selectedRecipe;
         this.setRecipeFormValues(this.recipe);
       }
@@ -69,7 +69,7 @@ export class RecipeAdminDetailComponent implements OnInit, OnDestroy {
   public buildRecipeForm(): void {
     this.recipeForm = this.formBuilder.group(
       {
-        title: this.formBuilder.control(''),
+        title: this.formBuilder.control('', Validators.required),
         description: this.formBuilder.control(''),
         notes: this.formBuilder.control(''),
         ingredientList: this.formBuilder.array([])
@@ -120,7 +120,7 @@ export class RecipeAdminDetailComponent implements OnInit, OnDestroy {
         style: new FormControl(ingredient.style),
         food: this.formBuilder.group(
           {
-            name: new FormControl(ingredient.food.name)
+            name: new FormControl(ingredient.food.name, Validators.required)
           }
         )
       }
@@ -132,21 +132,23 @@ export class RecipeAdminDetailComponent implements OnInit, OnDestroy {
   }
 
   public addRecipe(): void {
-    console.log('ADD', this.recipeForm.value);
-    this.recipeBookService.addRecipe(this.recipeForm.value, this.recipebookId);
+    const recipe: Recipe = this.recipeForm.value;
+    recipe.pictureUrl = this.tempImageUrlForAdding;
+    this.recipeBookService.addRecipe(recipe, this.selectedRecipeBook.id);
     this.router.navigate(['/recipebooks', this.selectedRecipeBook.title]);
   }
 
   public editRecipe(): void {
-    console.log('EDIT', this.recipeForm.value);
-    this.recipeBookService.editRecipe(this.recipeForm.value, this.recipebookId, this.recipe.id);
+    const recipe: Recipe = this.recipeForm.value;
+    recipe.pictureUrl = this.recipe.pictureUrl;
+    this.recipeBookService.editRecipe(recipe, this.selectedRecipeBook.id, this.recipe.id);
     this.router.navigate(['/recipebooks', this.selectedRecipeBook.title]);
   }
 
   public deleteRecipe(): void {
     this.dialogService.openDialog('Willst du wirklich das Rezept löschen?').afterClosed().subscribe(result => {
       if (result) {
-        this.recipeBookService.deleteRecipe(this.recipebookId, this.recipe.id);
+        this.recipeBookService.deleteRecipe(this.selectedRecipeBook.id, this.recipe.id);
         this.stateService.dispatch(stateActions.unsetselectedrecipe);
         this.router.navigate(['/recipebooks', this.selectedRecipeBook.title]);
       }
@@ -160,5 +162,13 @@ export class RecipeAdminDetailComponent implements OnInit, OnDestroy {
   public ngOnDestroy(): void {
     this.stateService.dispatch(stateActions.unsetselectedrecipe);
     this.stateSubscription.unsubscribe();
+  }
+
+  public setPictureUrl(url: string): void {
+    if (this.recipe) {
+      this.recipe.pictureUrl = url;
+    } else {
+      this.tempImageUrlForAdding = url;
+    }
   }
 }
