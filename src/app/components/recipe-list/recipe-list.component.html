@@ -18,8 +18,8 @@
     </div>
     <mat-list *ngIf="recipeBook">
       <mat-list-item *ngFor="let recipe of recipeBook.recipeList" (click)="navigateToSpecificRecipe(recipe)">
-        <img *ngIf="recipe.pictureUrl" matListAvatar src={{recipe.pictureUrl}} alt="Hinzugefügtes Foto">
-        <img *ngIf="!recipe.pictureUrl" matListAvatar src="./../../../assets/no_image.png" alt="Hinzugefügtes Foto">
+        <img *ngIf="recipe.pictureUrl" matListAvatar src={{recipe.pictureUrl}} alt="--">
+        <img *ngIf="!recipe.pictureUrl" matListAvatar src="./../../../assets/no_image.png" alt="--">
         <h1 matLine> {{recipe.title}} </h1>
         <p matLine>{{recipe.ingredientList ? recipe.ingredientList.length : 0}} Zutaten</p>
         <p matLine>

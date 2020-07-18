@@ -23,25 +23,23 @@ export class DashboardComponent implements OnInit {
               private router: Router) { }
 
   ngOnInit() {
-    this.loginService.isLoggedIn().then((value: boolean) => {
+    this.loginService.isLoggedIn().subscribe((value: boolean) => {
       this.isLoggedIn = value;
-    }).catch(error => console.log(error));
+    }, error => console.log('Error fetching logged In'));
     this.recipebookService.recipeBooks$.subscribe((rb: RecipeBook[]) => {
       this.recipeBooks = rb;
     });
   }
 
   public navigateToListOfRecipes(recipeBook: RecipeBook): void {
-    this.router.navigate(['/recipebooks', recipeBook.title]);
     this.stateService.dispatch(stateActions.setselectedrecipebook, recipeBook);
-
+    this.router.navigate(['/recipebooks', recipeBook.title]);
   }
 
   public navigateToSpecificRecipe(recipeBook: RecipeBook, recipe: Recipe): void {
-    this.router.navigate(['/recipebooks', recipeBook.title, 'recipe', recipe.title]);
     this.stateService.dispatch(stateActions.setselectedrecipebook, recipeBook);
     this.stateService.dispatch(stateActions.setselectedrecipe, recipe);
-
+    this.router.navigate(['/recipebooks', recipeBook.title, 'recipe', recipe.title]);
   }
 
   public addRecipeBook(): void {
@@ -50,10 +48,9 @@ export class DashboardComponent implements OnInit {
   }
 
   public openAddView(recipeBook: RecipeBook): void {
-    this.router.navigate(['/recipebooks', recipeBook.title, 'recipe', 'create', 'new']);
     this.stateService.dispatch(stateActions.setselectedrecipebook, recipeBook);
     this.stateService.dispatch(stateActions.unsetselectedrecipe);
-
+    this.router.navigate(['/recipebooks', recipeBook.title, 'recipe', 'create', 'new']);
   }
 
 }

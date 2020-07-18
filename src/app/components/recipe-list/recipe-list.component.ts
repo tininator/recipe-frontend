@@ -36,21 +36,19 @@ export class RecipeListComponent implements OnInit, OnDestroy {
               private readonly stateService: StateService) {
                 this.activeRoute.params.subscribe((params: Params) => {
                   this.recipebookParam = params['book'];
+                  this.recipeBookApi.getRecipeBookByTitle(this.recipebookParam).subscribe((rb: RecipeBook) => {
+                    this.stateService.dispatch(stateActions.setselectedrecipebook, rb);
+                  }, error => this.router.navigate(['/recipebooks']));
                 });
               }
 
   ngOnInit() {
-    this.loginService.isLoggedIn().then((value: boolean) => {
+    this.loginService.isLoggedIn().subscribe((value: boolean) => {
       this.isLoggedIn = value;
-    }).catch(error => console.log(error));
+    }, error => console.log('Error fetching logged In state'));
     this.stateSub = this.stateService.getState().subscribe((state: State) => {
-      console.log('LIST', state);
       if (state && state.selectedRecipeBook) {
         this.recipeBook = state.selectedRecipeBook;
-      } else {
-        this.recipeBookApi.getRecipeBookByTitle(this.recipebookParam).subscribe((rb: RecipeBook) => {
-          this.stateService.dispatch(stateActions.setselectedrecipebook, rb);
-        }, error => this.router.navigate(['/recipebooks']));
       }
     });
 

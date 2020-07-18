@@ -18,6 +18,9 @@ export class UploadFilesComponent implements OnInit {
   progress = 0;
   message = '';
 
+  imgURL: any;
+  public message2: string;
+
   fileInfos: Observable<any>;
 
   constructor(private uploadService: UploadFileService) { }
@@ -27,8 +30,23 @@ export class UploadFilesComponent implements OnInit {
   }
 
 
-  selectFile(event) {
-    this.selectedFiles = event.target.files;
+  selectFile(eventS) {
+    if (eventS.length === 0) {
+      return;
+    }
+
+    const mimeType = eventS[0].type;
+    if (mimeType.match(/image\/*/) == null) {
+      this.message2 = 'Only images are supported.';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(eventS[0]);
+    reader.onload = (event) => {
+      this.imgURL = reader.result;
+    }
+    // this.selectedFiles = eventS.target.files;
   }
 
   upload() {
@@ -52,7 +70,6 @@ export class UploadFilesComponent implements OnInit {
 
     this.uploadService.uploadFile(this.currentFile).subscribe((f: FileResponse) => {
       this.url.emit(f.uri);
-      console.log(f);
     });
 
     this.selectedFiles = undefined;

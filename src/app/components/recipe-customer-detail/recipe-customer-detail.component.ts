@@ -33,35 +33,35 @@ export class RecipeCustomerDetailComponent implements OnInit, OnDestroy {
               private readonly recipeBookService: RecipebookService,
               private readonly loginService: LoginService,
               private readonly stateService: StateService) {
-      this.activeRoute.params.subscribe((params: Params) => {
-        this.recipeParam = params['recipe'];
-      });
-      this.activeRoute.parent.params.subscribe((params: Params) => {
-        this.recipeBookParam = params['book'];
-      });
+                this.activeRoute.params.subscribe((params: Params) => {
+                  this.recipeParam = params['recipe'];
+                  console.log(this.recipeParam);
+                  this.recipeApi.getRecipeByTitle(this.recipeParam).subscribe((rb: Recipe) => {
+                    this.stateService.dispatch(stateActions.setselectedrecipe, rb);
+                  }, error => {
+                    this.router.navigate(['/recipebooks']);
+                  });
+                });
+                this.activeRoute.parent.params.subscribe((params: Params) => {
+                  this.recipeBookParam = params['book'];
+                  this.recipeBookApi.getRecipeBookByTitle(this.recipeBookParam).subscribe((rb: RecipeBook) => {
+                    this.stateService.dispatch(stateActions.setselectedrecipebook, rb);
+                  }, error => this.router.navigate(['/recipebooks']));
+
+                });
     }
 
   ngOnInit() {
-    this.loginService.isLoggedIn().then((value: boolean) => {
+    this.loginService.isLoggedIn().subscribe((value: boolean) => {
       this.isLoggedIn = value;
-    }).catch(error => console.log(error));
+    }, error => console.log('Error fetching logged In state'));
     this.stateSubscription = this.stateService.getState().subscribe((state: State) => {
-      console.log('DETAIL', state)
-      if (state && !state.selectedRecipeBook) {
-        this.recipeBookApi.getRecipeBookByTitle(this.recipeBookParam).subscribe((rb: RecipeBook) => {
-          this.stateService.dispatch(stateActions.setselectedrecipebook, rb);
-        }, error => this.router.navigate(['/recipebooks']));
-      } else if (state && !state.selectedRecipe) {
-        this.recipeApi.getRecipeByTitle(this.recipeParam).subscribe((rb: Recipe) => {
-          console.log('POSSIBLE');
-          this.stateService.dispatch(stateActions.setselectedrecipe, rb);
-        }, error => {
-          this.router.navigate(['/recipebooks', state.selectedRecipeBook.title]);
-        });
-      } else {
+      if (state.selectedRecipe && state.selectedRecipeBook) {
         this.recipe = state.selectedRecipe;
       }
     });
+
+
   }
 
   public addEditView(): void {

@@ -8,7 +8,8 @@ export enum stateActions {
   setselectedrecipebook = 'setSelectedRecipebook',
   setselectedrecipe = 'setSelectedRecipe',
   unsetselectedrecipebook = 'unSetSelectedRecipebook',
-  unsetselectedrecipe = 'unSetSelectedRecipe'
+  unsetselectedrecipe = 'unSetSelectedRecipe',
+  setselectedrecipeandbook = 'unSetSelectedRecipeandbook'
 }
 @Injectable({
   providedIn: 'root'
@@ -23,7 +24,7 @@ export class StateService {
 
   constructor() { }
 
-  public dispatch(action: stateActions, payload?: any): void {
+  public dispatch(action: stateActions, payload?: any, payload2?: any): void {
     switch (action) {
       case stateActions.setselectedrecipe:
         this.setSelectedRecipe(payload);
@@ -36,6 +37,9 @@ export class StateService {
         break;
       case stateActions.unsetselectedrecipebook:
         this.unSetSelectedRecipeBook();
+        break;
+      case stateActions.setselectedrecipeandbook:
+        this.setSelectedRecipeBookAndRecipe(payload, payload2);
         break;
     }
   }
@@ -65,6 +69,13 @@ export class StateService {
   private unSetSelectedRecipeBook(): void {
     const state: State = this._state$$.value;
     state.selectedRecipeBook = undefined;
+    this._state$$.next(state);
+  }
+
+  private setSelectedRecipeBookAndRecipe(recipebook: RecipeBook, recipe: Recipe): void {
+    const state: State = this._state$$.value;
+    state.selectedRecipeBook = recipebook;
+    state.selectedRecipe = recipe;
     this._state$$.next(state);
   }
 

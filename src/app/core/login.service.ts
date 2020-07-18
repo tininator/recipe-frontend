@@ -1,13 +1,21 @@
 import { Injectable } from '@angular/core';
 import { KeycloakService } from 'keycloak-angular';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
 
+  private loggedIn$$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public loggedIn$: Observable<boolean> = this.loggedIn$$.asObservable();
+
   constructor(
-    protected keycloakAngular: KeycloakService) { }
+    protected keycloakAngular: KeycloakService) {
+      this.keycloakAngular.isLoggedIn().then((value: boolean) => {
+        this.loggedIn$$.next(value);
+      });
+    }
 
   public logOut(): void {
     this.keycloakAngular.logout();
@@ -27,7 +35,7 @@ export class LoginService {
     this.keycloakAngular.login();
   }
 
-  public isLoggedIn(): Promise<boolean> {
-    return this.keycloakAngular.isLoggedIn();
+  public isLoggedIn(): Observable<boolean> {
+    return this.loggedIn$;
   }
 }

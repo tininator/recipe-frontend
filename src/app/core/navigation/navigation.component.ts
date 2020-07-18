@@ -18,9 +18,9 @@ export class NavigationComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.loginService.isLoggedIn().then((value: boolean) => {
+    this.loginService.isLoggedIn().subscribe((value: boolean) => {
       this.isLoggedIn = value;
-    }).catch(error => console.log(error));
+    }, error => console.log('Error fetching logged In state'));
     this.loginService.getUserInfos().then((profile: Keycloak.KeycloakProfile) => {
       this.firstname = profile.firstName;
       this.lastname = profile.lastName;
