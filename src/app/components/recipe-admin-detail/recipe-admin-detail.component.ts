@@ -9,8 +9,10 @@ import { RecipebookService } from 'src/app/services/recipebook.service';
 import { RecipebookApiService } from 'src/app/api/recipebook.api.service';
 import { RecipeApiService } from 'src/app/api/recipe.api.service';
 import { RecipeBook } from 'src/app/models/recipebook.interface';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 import { DialogService } from 'src/app/services/dialog.service';
+import { UploadFileService, FileResponse } from 'src/app/services/upload-file.service';
+import { SnackbarService } from 'src/app/services/snackbar.service';
 
 @Component({
   selector: 'app-recipe-admin-detail',
@@ -36,16 +38,28 @@ export class RecipeAdminDetailComponent implements OnInit, OnDestroy {
 
   private stateSubscription: Subscription;
 
+  private imageWasChanged = false;
+
+  // IMAGE UPLOAD PROPERTIES
+
+  selectedFiles: FileList;
+  currentFile: File;
+  progress = 0;
+  message = '';
+  imgURL: any;
+  public message2: string;
+  fileInfos: Observable<any>;
+
   constructor(private readonly formBuilder: FormBuilder,
               private readonly router: Router,
               private readonly activeRoute: ActivatedRoute,
               private readonly recipeBookService: RecipebookService,
-              private readonly recipeBookApi: RecipebookApiService,
-              private readonly recipeApi: RecipeApiService,
+              private readonly snackBarService: SnackbarService,
               private readonly dialogService: DialogService,
+              private readonly uploadService: UploadFileService,
               private readonly stateService: StateService) {
                 this.activeRoute.params.subscribe((params: Params) => {
-                  this.recipeBookParam = params['book'];
+                  this.recipeBookParam = params.book;
                 });
               }
 
@@ -132,27 +146,65 @@ export class RecipeAdminDetailComponent implements OnInit, OnDestroy {
   }
 
   public addRecipe(): void {
-    const recipe: Recipe = this.recipeForm.value;
-    recipe.pictureUrl = this.tempImageUrlForAdding;
-    this.recipeBookService.addRecipe(recipe, this.selectedRecipeBook.id);
-    this.router.navigate(['/recipebooks', this.selectedRecipeBook.title]);
+    if (this.imageWasChanged) {
+    this.currentFile = this.selectedFiles.item(0);
+    this.uploadService.uploadFile(this.selectedFiles.item(0)).subscribe((f: FileResponse) => {
+        const recipeTemp: Recipe = this.recipeForm.value;
+        recipeTemp.pictureUrl = f.uri;
+        this.recipeBookService.addRecipe(recipeTemp, this.selectedRecipeBook.id).subscribe((r: Recipe) => {
+          this.recipeBookService.addRecipeLocal(r);
+          this.selectedFiles = undefined;
+          this.snackBarService.openSnackBar('Rezept hinzugefügt');
+          this.router.navigate(['/recipebooks', this.selectedRecipeBook.title]);
+        }, error => this.snackBarService.openSnackBar('Fehler beim Hinzufügen eines Rezeptes'));
+      }, error => this.snackBarService.openSnackBar('Fehler beim Hochladen des Bildes'));
+    } else {
+      const recipeTemp: Recipe = this.recipeForm.value;
+      this.recipeBookService.addRecipe(recipeTemp, this.selectedRecipeBook.id).subscribe((r: Recipe) => {
+        this.recipeBookService.addRecipeLocal(r);
+        this.selectedFiles = undefined;
+        this.snackBarService.openSnackBar('Rezept hinzugefügt');
+        this.router.navigate(['/recipebooks', this.selectedRecipeBook.title]);
+      }, error => this.snackBarService.openSnackBar('Fehler beim Hinzufügen eines Rezeptes'));
+    }
   }
 
   public editRecipe(): void {
-    const recipe: Recipe = this.recipeForm.value;
-    recipe.pictureUrl = this.recipe.pictureUrl;
-    this.recipeBookService.editRecipe(recipe, this.selectedRecipeBook.id, this.recipe.id);
-    this.router.navigate(['/recipebooks', this.selectedRecipeBook.title]);
+    if (this.imageWasChanged) {
+      this.currentFile = this.selectedFiles.item(0);
+      this.uploadService.uploadFile(this.selectedFiles.item(0)).subscribe((f: FileResponse) => {
+          const recipeTemp: Recipe = this.recipeForm.value;
+          recipeTemp.pictureUrl = f.uri;
+          this.recipeBookService.editRecipe(recipeTemp, this.selectedRecipeBook.id, this.recipe.id).subscribe((r: Recipe) => {
+            this.recipeBookService.editRecipeLocal(r);
+            this.selectedFiles = undefined;
+            this.snackBarService.openSnackBar('Rezept aktualisiert');
+            this.router.navigate(['/recipebooks', this.selectedRecipeBook.title]);
+          }, error => this.snackBarService.openSnackBar('Fehler beim Aktualisieren des Rezeptes'));
+        }, error => this.snackBarService.openSnackBar('Fehler beim Hochladen des Bildes'));
+      } else {
+        const recipeTemp: Recipe = this.recipeForm.value;
+        recipeTemp.pictureUrl = this.recipe.pictureUrl;
+        this.recipeBookService.editRecipe(recipeTemp, this.selectedRecipeBook.id, this.recipe.id).subscribe((r: Recipe) => {
+          this.recipeBookService.editRecipeLocal(r);
+          this.selectedFiles = undefined;
+          this.router.navigate(['/recipebooks', this.selectedRecipeBook.title]);
+          this.snackBarService.openSnackBar('Rezept aktualisiert');
+        }, error => this.snackBarService.openSnackBar('Fehler beim Aktualisieren des Rezeptes'));
+      }
   }
 
   public deleteRecipe(): void {
     this.dialogService.openDialog('Willst du wirklich das Rezept löschen?').afterClosed().subscribe(result => {
       if (result) {
-        this.recipeBookService.deleteRecipe(this.selectedRecipeBook.id, this.recipe.id);
-        this.stateService.dispatch(stateActions.unsetselectedrecipe);
-        this.router.navigate(['/recipebooks', this.selectedRecipeBook.title]);
+        this.recipeBookService.deleteRecipe(this.recipe.id).subscribe(() => {
+          this.recipeBookService.deleteRecipeLocal(this.selectedRecipeBook.id, this.recipe.id);
+          this.stateService.dispatch(stateActions.unsetselectedrecipe);
+          this.snackBarService.openSnackBar('Rezept wurde gelöscht');
+          this.router.navigate(['/recipebooks', this.selectedRecipeBook.title]);
+        });
       }
-    });
+    }, error => this.snackBarService.openSnackBar('Fehler beim Löschen des Rezeptes'));
   }
 
   public return(): void {
@@ -164,11 +216,23 @@ export class RecipeAdminDetailComponent implements OnInit, OnDestroy {
     this.stateSubscription.unsubscribe();
   }
 
-  public setPictureUrl(url: string): void {
-    if (this.recipe) {
-      this.recipe.pictureUrl = url;
-    } else {
-      this.tempImageUrlForAdding = url;
+  selectFile(eventS, event2) {
+    this.imageWasChanged = true;
+    if (eventS.length === 0) {
+      return;
     }
+
+    const mimeType = eventS[0].type;
+    if (mimeType.match(/image\/*/) == null) {
+      this.message2 = 'Only images are supported.';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(eventS[0]);
+    reader.onload = (event) => {
+      this.imgURL = reader.result;
+    };
+    this.selectedFiles = event2.target.files;
   }
 }

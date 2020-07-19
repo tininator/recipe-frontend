@@ -2,7 +2,7 @@
 <mat-sidenav-container style="height: calc(100% - 64px); margin: 0;">
   <mat-sidenav #sidenav mode="side" opened [class.mat-elevation-z4]="true" style="width: 240px">
       <mat-nav-list dense>
-          <mat-expansion-panel [class.mat-elevation-z0]="true" dense *ngFor="let book of recipeBooks">
+          <mat-expansion-panel [class.mat-elevation-z0]="true" dense *ngFor="let book of recipeBooks" [expanded]="book.id === openedRecipeBookId">
               <mat-expansion-panel-header>
                   {{book.title}}
               </mat-expansion-panel-header>
@@ -10,7 +10,7 @@
                 <a mat-list-item (click)="navigateToListOfRecipes(book)"><mat-icon class="mr-2">restaurant</mat-icon><strong>Alle Rezepte</strong></a>
             </mat-nav-list>
               <mat-nav-list dense *ngFor="let recipe of book.recipeList">
-                  <a mat-list-item (click)="navigateToSpecificRecipe(book, recipe)">{{recipe.title}}</a>
+                  <a mat-list-item (click)="navigateToSpecificRecipe(book, recipe)" [ngClass]="{'highlite': selectedRecipeId === recipe.id}">{{recipe.title}}</a>
               </mat-nav-list>
               <div class="row justify-content-center">
                 <button mat-icon-button *ngIf="isLoggedIn" (click)="openAddView(book)"><mat-icon>add</mat-icon></button>

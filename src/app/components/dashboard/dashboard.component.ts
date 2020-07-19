@@ -5,6 +5,7 @@ import { Recipe } from 'src/app/models/recipe.interface';
 import { StateService, stateActions } from 'src/app/services/state.service';
 import { Router } from '@angular/router';
 import { LoginService } from 'src/app/core/login.service';
+import { State } from 'src/app/models/state.interface';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,6 +17,8 @@ export class DashboardComponent implements OnInit {
   public recipeBooks: RecipeBook[];
   public tempInput: string;
   public isLoggedIn: boolean;
+  public openedRecipeBookId: string;
+  public selectedRecipeId: string;
 
   constructor(private recipebookService: RecipebookService,
               private stateService: StateService,
@@ -29,6 +32,14 @@ export class DashboardComponent implements OnInit {
     this.recipebookService.recipeBooks$.subscribe((rb: RecipeBook[]) => {
       this.recipeBooks = rb;
     });
+    this.stateService.getState().subscribe((state: State) => {
+      if (state.selectedRecipeBook) {
+        this.openedRecipeBookId = state.selectedRecipeBook.id;
+      }
+      if (state.selectedRecipe) {
+        this.selectedRecipeId = state.selectedRecipe.id;
+      }
+    })
   }
 
   public navigateToListOfRecipes(recipeBook: RecipeBook): void {

@@ -55,43 +55,45 @@ export class RecipebookService {
     }, error => this.snackbarService.openSnackBar(error.error));
   }
 
-  public addRecipe(recipe: Recipe, recipebookid: string): void {
-    this.recipeController.postRecipeEntry(recipe, recipebookid).subscribe((r: Recipe) => {
-      const recipebooks: RecipeBook[] = this._recipeBooks$$.value;
-      const recipebook: RecipeBook = recipebooks.find((rb: RecipeBook) => rb.id === r.recipebookId);
-      if (recipebook && recipebook.recipeList) {
-        recipebook.recipeList.push(r);
+  public addRecipe(recipe: Recipe, recipebookid: string): Observable<Recipe> {
+    return this.recipeController.postRecipeEntry(recipe, recipebookid);
+  }
+
+  public editRecipe(updatedRecipe: Recipe, recipebookid: string, id: string): Observable<Recipe> {
+    return this.recipeController.updateRecipe(updatedRecipe, recipebookid, id);
+  }
+
+  public deleteRecipe(id: string): Observable<void> {
+    return this.recipeController.deleteRecipeById(id);
+  }
+
+  public addRecipeLocal(recipe: Recipe): void {
+    const recipebooks: RecipeBook[] = this._recipeBooks$$.value;
+    const recipebook: RecipeBook = recipebooks.find((rb: RecipeBook) => rb.id === recipe.recipebookId);
+    if (recipebook && recipebook.recipeList) {
+        recipebook.recipeList.push(recipe);
       } else {
         recipebook.recipeList = [];
-        recipebook.recipeList.push(r);
+        recipebook.recipeList.push(recipe);
       }
-      this._recipeBooks$$.next(recipebooks.slice());
-      this.snackbarService.openSnackBar('Rezept erstellt');
-    }, error => console.log(error));
+    this._recipeBooks$$.next(recipebooks.slice());
   }
 
-  public editRecipe(updatedRecipe: Recipe, recipebookid: string, id: string): void {
-    this.recipeController.updateRecipe(updatedRecipe, recipebookid, id).subscribe((r: Recipe) => {
-      const recipebooks: RecipeBook[] = this._recipeBooks$$.value;
-      const recipebook: RecipeBook = recipebooks.find((rb: RecipeBook) => rb.id === r.recipebookId);
-      const recipebookIndex: number = recipebooks.findIndex((rb: RecipeBook) => rb.id === r.recipebookId);
-      const index: number = recipebook.recipeList.findIndex((re: Recipe) => re.id === r.id);
-      recipebooks[recipebookIndex].recipeList.splice(index, 1, r);
-      this._recipeBooks$$.next(recipebooks.slice());
-      this.snackbarService.openSnackBar('Rezept aktualisiert');
-    }, error => this.snackbarService.openSnackBar(error));
+  public editRecipeLocal(updatedRecipe: Recipe): void {
+    const recipebooks: RecipeBook[] = this._recipeBooks$$.value;
+    const recipebook: RecipeBook = recipebooks.find((rb: RecipeBook) => rb.id === updatedRecipe.recipebookId);
+    const recipebookIndex: number = recipebooks.findIndex((rb: RecipeBook) => rb.id === updatedRecipe.recipebookId);
+    const index: number = recipebook.recipeList.findIndex((re: Recipe) => re.id === updatedRecipe.id);
+    recipebooks[recipebookIndex].recipeList.splice(index, 1, updatedRecipe);
+    this._recipeBooks$$.next(recipebooks.slice());
   }
 
-  public deleteRecipe(recipebookid: string, id: string): void {
-    this.recipeController.deleteRecipeById(id).subscribe(() => {
-      const recipebooks: RecipeBook[] = this._recipeBooks$$.value;
-      const recipebook: RecipeBook = recipebooks.find((rb: RecipeBook) => rb.id === recipebookid);
-      const recipebookIndex: number = recipebooks.findIndex((rb: RecipeBook) => rb.id === recipebookid);
-      const index: number = recipebook.recipeList.findIndex((re: Recipe) => re.id === id);
-      recipebooks[recipebookIndex].recipeList.splice(index, 1);
-      this._recipeBooks$$.next(recipebooks.slice());
-      this.snackbarService.openSnackBar('Rezept gelöscht');
-    }, error => console.log(error));
+  public deleteRecipeLocal(recipebookid: string, id: string): void {
+    const recipebooks: RecipeBook[] = this._recipeBooks$$.value;
+    const recipebook: RecipeBook = recipebooks.find((rb: RecipeBook) => rb.id === recipebookid);
+    const recipebookIndex: number = recipebooks.findIndex((rb: RecipeBook) => rb.id === recipebookid);
+    const index: number = recipebook.recipeList.findIndex((re: Recipe) => re.id === id);
+    recipebooks[recipebookIndex].recipeList.splice(index, 1);
+    this._recipeBooks$$.next(recipebooks.slice());
   }
-
 }

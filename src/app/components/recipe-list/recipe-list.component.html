@@ -16,7 +16,7 @@
     <div class="row justify-content-center" *ngIf="recipeBook && recipeBook.recipeList.length !== 0">
       <p class="col-8" style="text-align: center;">Eine Auflistung aller Rezepte zu dem Rezeptbuch.</p>
     </div>
-    <mat-list *ngIf="recipeBook">
+    <!-- <mat-list *ngIf="recipeBook">
       <mat-list-item *ngFor="let recipe of recipeBook.recipeList" (click)="navigateToSpecificRecipe(recipe)">
         <img *ngIf="recipe.pictureUrl" matListAvatar src={{recipe.pictureUrl}} alt="--">
         <img *ngIf="!recipe.pictureUrl" matListAvatar src="./../../../assets/no_image.png" alt="--">
@@ -26,7 +26,15 @@
           <span> {{recipe.description}} </span>
         </p>
       </mat-list-item>
-    </mat-list>
+    </mat-list> -->
+
+    <div class="row" *ngIf="recipeBook">
+      <div *ngFor="let recipe of recipeBook.recipeList" (click)="navigateToSpecificRecipe(recipe)" class="col-3 m-auto">
+        <img *ngIf="recipe.pictureUrl" src={{recipe.pictureUrl}} alt="Bild entfernt" width="100%" height="auto ">
+        <img *ngIf="!recipe.pictureUrl" src="./../../../assets/no_image.png" alt="Bild entfernt" width="100%" height="auto">
+        <h1 matLine> {{recipe.title}} </h1>
+      </div>
+    </div>
 
     <div class="row justify-content-center mt-3" *ngIf="isLoggedIn">
       <button mat-fab color="primary" aria-label="Example icon button with a delete icon" (click)="navigateToAddView()">
